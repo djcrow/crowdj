@@ -2,8 +2,12 @@ from flask import Flask, request, redirect
 import twilio.twiml
 from twilio.rest import TwilioRestClient
 from datetime import datetime as dt
+import time
 import json
 import os
+
+import sqlite3
+
 
 ACCOUNT_SID = os.environ["TWILIO_ACCOUNT_SID"]
 AUTH_TOKEN = os.environ["TWILIO_AUTH_TOKEN"]
@@ -12,28 +16,29 @@ client = TwilioRestClient(ACCOUNT_SID, AUTH_TOKEN)
 
 app = Flask(__name__)
 
-global start_time
-global sesh_id
+
+conn = sqlite3.connect('my_hits.db')
+c = conn.cursor()
+
 
 start_time = None
 sesh_id = None
 
+result = {
+    "hot": 0,
+    "cold": 0,
+    "sesh_id": sesh_id
+}
+
 
 def analyze_messages(messages, sesh_id):
-    hot = 0
-    cold = 0
     for msg in messages:
         if msg.direction == "inbound":
             if msg.date_created > start_time:
                 if "hot" in msg.body.lower():
-                    hot += 1
+                    result['hot'] += 1
                 elif "cold" in msg.body.lower():
-                    cold += 1
-    result = {
-        "hot": hot,
-        "cold": cold,
-        "sesh_id": sesh_id
-    }
+                    result['cold'] += 1
     return result
 
 
@@ -46,10 +51,19 @@ def submit(sesh_id=None):
 
 @app.route("/start_poll/<session_id>/", methods=['GET', 'POST'])
 def start_poll(session_id=None):
-    global start_time
-    global sesh_id
     sesh_id = session_id
     start_time = dt.utcnow()
+
+    for i in range(start_time):
+        c.execute(
+            'CREATE TABLE IF NOT EXISTS TableOfMusic (sesh_id REAL, hot REAL, cold REAL)')
+        c.execute("INSERT INTO TableOfMusic (sesh_id, hot, cold) VALUES (?, ?, ?)",
+                  (result['sesh_id'], result['hot'], result['cold)']))
+        time.sleep(1)
+    conn.commit()
+    c.close()
+    conn.close()
+
     return sesh_id
 
 
@@ -57,6 +71,7 @@ def start_poll(session_id=None):
 def get_results():
     # get all messages from today
     messages = client.messages.list()
+    c.execute(" SELECT * FROM TableOfMusic WHERE (sesh_id, hot, cold) IN ( SELECT MAX(sesh_id), hot, cold FROM TableOfMusic GROUP BY sesh_id)")
     if sesh_id and start_time:
         result = analyze_messages(messages, sesh_id)
         return json.dumps(result)
