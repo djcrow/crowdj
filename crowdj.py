@@ -45,7 +45,8 @@ def analyze_messages(messages, sesh_id):
 @app.route("/submit/", methods=['GET', 'POST'])
 def submit(sesh_id=None):
     resp = twilio.twiml.Response()
-    resp.message("Thanks for your input!")
+    resp.message(
+        "Thanks for your input! Hope you enjoy the next song - as always, this next one's for you!")
     return str(resp)
 
 
