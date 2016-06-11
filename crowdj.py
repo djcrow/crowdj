@@ -4,6 +4,8 @@ from twilio.rest import TwilioRestClient
 from datetime import datetime as dt
 import json
 import os
+import requests
+
 
 ACCOUNT_SID = os.environ["TWILIO_ACCOUNT_SID"]
 AUTH_TOKEN = os.environ["TWILIO_AUTH_TOKEN"]
@@ -25,9 +27,12 @@ def analyze_messages(messages, sesh_id):
     for msg in messages:
         if msg.direction == "inbound":
             if msg.date_created > start_time:
-                if "hot" in msg.body.lower():
+                r = requests.post("http://text-processing.com/api/sentiment",
+                                  "text={}".format(msg.body))
+                label = json.loads(r.json())['label']
+                if label == 'pos':
                     hot += 1
-                elif "cold" in msg.body.lower():
+                elif label == 'neg':
                     cold += 1
     result = {
         "hot": hot,
@@ -40,7 +45,7 @@ def analyze_messages(messages, sesh_id):
 @app.route("/submit/", methods=['GET', 'POST'])
 def submit(sesh_id=None):
     resp = twilio.twiml.Response()
-    resp.message("Thanks for your input!")
+    resp.message("Thanks for your input! ")
     return str(resp)
 
 
@@ -55,6 +60,8 @@ def start_poll(session_id=None):
 
 @app.route("/get_results/", methods=['GET', 'POST'])
 def get_results():
+    # print sesh_id
+    # print start_time
     # get all messages from today
     messages = client.messages.list()
     if sesh_id and start_time:
