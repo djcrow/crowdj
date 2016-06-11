@@ -46,7 +46,7 @@ def analyze_messages(messages, sesh_id):
 def submit(sesh_id=None):
     resp = twilio.twiml.Response()
     resp.message(
-        "Thanks for your input! Hope you enjoy the next song - as always, this next one's for you!")
+        "Thanks for your input! - as always, this next one's for you!")
     return str(resp)
 
 
