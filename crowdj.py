@@ -55,12 +55,11 @@ def start_poll(session_id=None):
     sesh_id = session_id
     start_time = dt.utcnow()
 
-    for i in range(start_time):
-        c.execute(
-            'CREATE TABLE IF NOT EXISTS TableOfMusic (sesh_id REAL, hot REAL, cold REAL);')
-        c.execute('INSERT INTO TableOfMusic (sesh_id, hot, cold) VALUES (?,?,?)',
-                  (result['sesh_id'], result['hot'], result['cold']))
-        time.sleep(1)
+    c.execute(
+        'CREATE TABLE IF NOT EXISTS TableOfMusic (sesh_id REAL, hot REAL, cold REAL);')
+    c.execute('INSERT INTO TableOfMusic (sesh_id, hot, cold) VALUES (?,?,?)',
+              (result['sesh_id'], result['hot'], result['cold']))
+    time.sleep(1)
     conn.commit()
     c.close()
     conn.close()
