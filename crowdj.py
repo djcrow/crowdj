@@ -56,9 +56,8 @@ def start_poll(session_id=None):
 
     for i in range(start_time):
         c.execute(
-            'CREATE TABLE IF NOT EXISTS TableOfMusic (sesh_id REAL, hot REAL, cold REAL)')
-        c.execute("INSERT INTO TableOfMusic (sesh_id, hot, cold) VALUES (?, ?, ?)",
-                  (result['sesh_id'], result['hot'], result['cold)']))
+            'CREATE TABLE IF NOT EXISTS TableOfMusic (sesh_id REAL, hot REAL, cold REAL);')
+        c.execute('INSERT INTO TableOfMusic (sesh_id, hot, cold) VALUES (result['sesh_id'], result['hot'], result['cold']);')
         time.sleep(1)
     conn.commit()
     c.close()
@@ -71,7 +70,7 @@ def start_poll(session_id=None):
 def get_results():
     # get all messages from today
     messages = client.messages.list()
-    c.execute(" SELECT * FROM TableOfMusic WHERE (sesh_id, hot, cold) IN ( SELECT MAX(sesh_id), hot, cold FROM TableOfMusic GROUP BY sesh_id)")
+    c.execute("SELECT a.* FROM TableOfMusic a LEFT OUTER JOIN TableOfMusic b ON a.sesh_id < b.sesh_id WHERE b.sesh_id IS NULL;")
     if start_poll(sesh_id) and start_time:
         result = analyze_messages(messages, sesh_id)
         return json.dumps(result)
