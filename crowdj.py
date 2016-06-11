@@ -9,8 +9,8 @@ import os
 import sqlite3
 
 
-ACCOUNT_SID = os.environ["TWILIO_ACCOUNT_SID"]
-AUTH_TOKEN = os.environ["TWILIO_AUTH_TOKEN"]
+ACCOUNT_SID = os.environ["ACCOUNT_SID"]
+AUTH_TOKEN = os.environ["AUTH_TOKEN"]
 
 client = TwilioRestClient(ACCOUNT_SID, AUTH_TOKEN)
 
