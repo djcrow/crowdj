@@ -87,8 +87,8 @@ def stop_poll():
         client.messages.delete(msg.sid)
 
     # Reset start time and sesh_id
-    global start_time
-    global sesh_id
+    # global start_time
+    # global sesh_id
     start_time = None
     sesh_id = None
     return "Stopped"
