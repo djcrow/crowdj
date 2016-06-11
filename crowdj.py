@@ -72,7 +72,7 @@ def get_results():
     # get all messages from today
     messages = client.messages.list()
     c.execute(" SELECT * FROM TableOfMusic WHERE (sesh_id, hot, cold) IN ( SELECT MAX(sesh_id), hot, cold FROM TableOfMusic GROUP BY sesh_id)")
-    if sesh_id and start_time:
+    if start_poll(sesh_id) and start_time:
         result = analyze_messages(messages, sesh_id)
         return json.dumps(result)
     else:
