@@ -27,9 +27,8 @@ def analyze_messages(messages, sesh_id):
     for msg in messages:
         if msg.direction == "inbound":
             if msg.date_created > start_time:
-                r = requests.post("http://text-processing.com/api/sentiment",
-                                  "text={}".format(msg.body))
-                label = json.loads(r.json())['label']
+                r = requests.post("http://text-processing.com/api/sentiment/", "text={}".format(msg.body))
+                label = r.json()['label']
                 if label == 'pos':
                     hot += 1
                 elif label == 'neg':
